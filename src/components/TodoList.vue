@@ -56,6 +56,13 @@
                     </span>
                     </li>
                 </ul>
+                <button class="list-button button-delete"
+                        @click="getData"
+                        >表示</button>
+                <button class="list-button button-delete"
+                        @click="postData()"
+                        >登録</button>
+                
             </div>
 
 
@@ -65,6 +72,20 @@
 </template>
 
 <script>
+   import firebase from 'firebase/app';
+   import axios from 'axios';
+
+   const firebaseConfig = {
+    apiKey: "AIzaSyDU3yhFfduc8SKROnoa-r75o7ktjo7UYtg",
+    authDomain: "test-28015.firebaseapp.com",
+    databaseURL: "https://test-28015-default-rtdb.firebaseio.com",
+    projectId: "test-28015",
+    storageBucket: "test-28015.appspot.com",
+    messagingSenderId: "395512823241",
+    appId: "1:395512823241:web:0c5fc450c780c724837c18",
+    measurementId: "G-YD5MYC3QWD"
+    };
+
     export default {
     data(){
         return {
@@ -105,8 +126,65 @@
             const filteredTodo = this.todos.filter(todo => todo.id ===id)[0];
             const index = this.todos.indexOf(filteredTodo);
             return index;
+        },
+        getData: function () {
+            if (firebase.apps.length === 0) {
+                firebase.initializeApp();
+            }
+                const  db = firebase.firestore();
+                // データ取得
+                db.collection('todos').get(
+                ).then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        // テーブル表示
+                        this.todos = [doc.data()];
+                    });
+                }).catch((error) => {
+                    console.log(error);
+                    // テーブルリセット
+                    this.items = [];
+                });
+        },
+        postData: function () {
+            console.log('db接続前');
+            console.log(this.todos[0]);
+            console.log(this.todos[0].id);
+            console.log(this.todos[0].text);
+            console.log(this.todos[0].isDone);
+            const isDoneString = toString(this.todos[0].isDone)
+            axios.post(
+                // https://firestore.googleapis.com/v1/projects/YOUR_PROJECT_ID/databases/(default)/documents/cities/LA
+                // 'https://firestore.googleapis.com/v1/projects/test-28015/databases/(default)/documents/todos/tcppIyoMuilKrG1niPm7',
+                'https://firestore.googleapis.com/v1/projects/test-28015/databases/(default)/documents/todos',
+
+                
+                { 
+                    fields: {
+                        id: {
+                            stringValue: this.todos[0].id//stringValueは絶対
+                        },
+                        isDone:{// booleanValueでOK
+                            booleanValue: this.todos[0].isDone
+                        },
+                        text:{
+                            stringValue: this.todos[0].text
+                        }
+                        
+                    }
+                }
+                
+            )
+            .then((response) => {
+                console.log(response);
+            })
+            .catch((error) => {
+                console.log(error.message);
+            });
         }
+        
+
     },
+
     computed: {
         doneTodo(){
             return this.todos.filter( todo => todo.isDone === true);

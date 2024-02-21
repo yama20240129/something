@@ -5,11 +5,9 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import { defineComponent } from 'vue';
 import TodoList from './components/TodoList.vue';
-
-
 
 export default defineComponent({
   name: 'App',
