@@ -1,6 +1,8 @@
 <template>
   <div class="main-page">
-    メインページです
+    <h2 style="margin: 0px; font-family:sans-serif ;">
+      ぼちぼち、りすと。
+    </h2>
     <TodoList />
   </div>
 </template>

@@ -1,90 +1,83 @@
 <template>
-    <div>
-        <div class="todo-form">
-            <input type="text" name="todo-text" class="input-text" placeholder="please input todo"
-            :value="text"
-            @input="inputText"
-            />
-            <button
-            class="add-button"
-            @click="addTodo"
-            >ADD TODO</button>
+    <body>
+        <div>
+            <article class="wrap">
+                <section class="todo-form">
+                    <input type="text" name="todo-text" class="input-text" placeholder="何をする？"
+                    :value="text"
+                    @input="inputText"
+                    />
+                    <button
+                    class="add-button"
+                    @click="addTodo"
+                    >ADD TODO</button>
+                </section>
+
+                <section class="list-area">
+                    <div class="area-complete_incomplete">
+                        <p class="todo-title">今のリスト</p>
+                        <ul class="todo-area">
+                            <li
+                                v-for="(item, i) in incompleteTodo"
+                                :key="i"
+                                class="list"
+                            >
+                            <span class="list-label">{{ item.text }}</span>
+                            <span class="button-area">
+                                <button class="list-button button-done"
+                                @click="toggleIsDone(item,id)"
+                                >DONE</button>
+                            </span>
+                            <span class="button-area">
+                                <button class="list-button button-delete"
+                                @click="deleteTodo(item,id)"
+                                >DELETE</button>
+                            </span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="area-complete_incomplete">
+                        <p class="todo-title">達成済み</p>
+                        <ul class="todo-area">
+                            <li
+                                v-for="(item, i) in doneTodo"
+                                :key="i"
+                                class="list"
+                            >
+                            <span class="list-label">{{ item.text }}</span>
+                            <span class="button-area">
+                                <button 
+                                class="list-button button-return"
+                                @click="toggleIsDone(item,id)"
+                                >RETURN</button>
+                            </span>
+                            <span class="button-area">
+                                <button class="list-button button-delete"
+                                @click="deleteTodo(item,id)"
+                                >DELETE</button>
+                            </span>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+                <section class="db-action">
+                    <div>
+                        <button class="bottom-area button-show"
+                                @click="getData"
+                                >表示</button>
+                        <button class="bottom-area button-register"
+                                @click="postData()"
+                                >登録</button>
+                    </div>
+                </section>
+            </article>
         </div>
-        <div class="list-area">
-            <div class="area-incomplete">
-                <p class="todo-title">incomplete items</p>
-                <ul class="todo-area">
-                    <li
-                        v-for="(item, i) in incompleteTodo"
-                        :key="i"
-                        class="list"
-                    >
-                    <span class="list-label">{{ item.text }}</span>
-                    <span class="button-area">
-                        <button class="list-button button-done"
-                        @click="toggleIsDone(item,id)"
-                        >DONE</button>
-                    </span>
-                    <span class="button-area">
-                        <button class="list-button button-delete"
-                        @click="deleteTodo(item,id)"
-                        >DELETE</button>
-                    </span>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="area-complete">
-                <p class="todo-title">complete items</p>
-                <ul class="todo-area">
-                    <li
-                        v-for="(item, i) in doneTodo"
-                        :key="i"
-                        class="list"
-                    >
-                    <span class="list-label">{{ item.text }}</span>
-                    <span class="button-area">
-                        <button 
-                        class="list-button"
-                        @click="toggleIsDone(item,id)"
-                        >RETURN</button>
-                    </span>
-                    <span class="button-area">
-                        <button class="list-button button-delete"
-                        @click="deleteTodo(item,id)"
-                        >DELETE</button>
-                    </span>
-                    </li>
-                </ul>
-                <button class="list-button button-delete"
-                        @click="getData"
-                        >表示</button>
-                <button class="list-button button-delete"
-                        @click="postData()"
-                        >登録</button>
-                
-            </div>
-
-
-
-        </div>
-    </div>
+    </body>
 </template>
 
 <script>
    import firebase from 'firebase/app';
    import axios from 'axios';
-
-   const firebaseConfig = {
-    apiKey: "AIzaSyDU3yhFfduc8SKROnoa-r75o7ktjo7UYtg",
-    authDomain: "test-28015.firebaseapp.com",
-    databaseURL: "https://test-28015-default-rtdb.firebaseio.com",
-    projectId: "test-28015",
-    storageBucket: "test-28015.appspot.com",
-    messagingSenderId: "395512823241",
-    appId: "1:395512823241:web:0c5fc450c780c724837c18",
-    measurementId: "G-YD5MYC3QWD"
-    };
 
     export default {
     data(){
@@ -198,8 +191,120 @@
 </script>
 
 
-<!-- 
 
-<style scoped>
 
-</style> -->
+<style lang="scss" scoped>
+
+*{
+    .body{
+        height: 50vh;
+        width: 30vh;
+        
+        background-color: #fcfcfa;
+        font-family: "メイリオ";
+    }
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    .todo-form{
+        text-align: center;
+        padding:80px 0 50px;
+        .input-text{
+            width: 300px;
+            font-size: 20px;
+            padding: 12px 20px;
+            border-radius: 4px;
+            // -webkit-appearance: none;
+            border: none;
+            box-shadow: 0px 0px 12px #ccc;
+            margin: 0 10px;
+        }
+        .add-button{
+            font-size: 16px;
+            padding: 12px 20px;
+            border: none;
+            background-color: black;
+            color: #eee;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+    }
+    .list-area{
+       display: flex;
+       justify-content: space-between;
+       padding: 0 20vh;
+       .area-complete_incomplete{
+        width: 470px;
+            .todo-title{
+                color: #333;
+                font-size: 25px;
+                text-align: center;
+            }
+            .todo-area{
+                margin-top: 36px;
+                .list{
+                    align-items: center;
+                    background-color: #fefefe;
+                    box-shadow: 0px 2px 12px #cecece;
+                    display: flex;
+                    justify-content: space-between;
+                    list-style: none;
+                    padding: 10px 20px 10px 32px;
+                    width: 100%;
+                    .list:not(:first-child){
+                        margin-top: 16px;
+
+                    }
+                    .list-label{
+                        font-size: 20px;
+                    }
+                    .button-area{
+                        
+                        .list-button{
+                            font-size: 15px;
+                            padding: 6px 16px;
+                            border-radius: 4px;
+                            border: none;
+                            color: #eee;
+                        }
+                        .button-done{
+                            background-color: #4CAF50;
+                            
+                        }
+                        .button-delete{
+                            background-color: #ff5b4f;
+
+                        }
+                        .button-return{
+                            background-color: #615fc6;
+                            
+
+                        }
+                    }
+                }
+            }
+       }
+    }
+    .db-action{
+        // width:100%;
+        display: flex;
+        justify-content: center;
+        .bottom-area{
+            font-size: 15px;
+            padding: 6px 16px;
+            border-radius: 4px;
+            border: none;
+            margin: 50px 20px;
+        }
+        .button-show{
+            background-color: #f5faa9;
+                            color: #050000;
+            }
+            .button-register{
+                background-color: #acf7e5;
+                            color: #050000;
+            }
+        
+    }
+}
+</style>
