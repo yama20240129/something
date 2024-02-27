@@ -60,27 +60,64 @@
                         </ul>
                     </div>
                 </section>
-                <!-- <section class="db-action">
+                <section class="db-action">
                     <div>
                         <button class="bottom-area button-show"
-                                @click="getData"
+                                @click="getData()"
                                 >表示</button>
-                        <button class="bottom-area button-register"
-                                @click="postData()"
-                                >登録</button>
                     </div>
-                </section> -->
+                </section>
             </article>
         </div>
     </body>
 </template>
 
 <script>
-   import firebase from 'firebase/app';
-   import axios from 'axios';
+   import { db } from '../../firebase/firebase'
+   import { onMounted, ref, reactive,inject, watch } from 'vue'
+   import { collection, getDocs, onSnapshot, deleteDoc,addDoc, query, orderBy, doc, updateDoc } from "firebase/firestore";
+   
+   const todos = ref();
+   const todosQuery = query(collection(db, 'todos'), orderBy('date', 'desc'));
+//    onMounted(() => {
+//             onSnapshot(todosQuery, (querySnapshot) => {
+//                 const fbTodos = [];
+//                 querySnapshot.forEach((doc) => {
+//                     const todo = {
+//                     id: doc.id,
+//                     isDone: doc.data().isDone,
+//                     text: doc.data().text,
+//                     };
+//                     fbTodos.push(todo);
+//                 });
+//                 console.log('即時のため来る');
+//                 todos.value = fbTodos;
+//             });
+//    });
+
+
+
+
 
     export default {
     data(){
+        // const todos = [];
+        // const todosQuery = query(collection(db, 'todos'), orderBy('date', 'desc'));
+        // onSnapshot(todosQuery, (querySnapshot) => {
+        //         const fbTodos = [];
+        //         querySnapshot.forEach((doc) => {
+        //             const todo = {
+        //             id: doc.id,
+        //             isDone: doc.data().isDone,
+        //             text: doc.data().text,
+        //             };
+        //             fbTodos.push(todo);
+        //         });
+        //         console.log(fbTodos);
+        //         console.log('即時のため来る');
+        //         this.todos = fbTodos;
+        //         console.log(this.todos);
+        //     });
         return {
             todos: [],
             text: ''
@@ -95,89 +132,65 @@
 
             const text = this.text;
             const todo = {
-                id : new Date().getTime().toString(16),
-                text,
-                isDone: false
+                id: new Date().getTime().toString(16),
+                isDone: false,
+                text: text,
             };
+            addDoc(collection(db, 'todos'), { 
+                id: new Date().getTime().toString(16),
+                isDone: false,
+                text: text,
+        });
             this.todos.push(todo)
             this.resetText();
+
         },
         resetText(){
             this.text = '';
         },
         deleteTodo(e){
             const index = this.getIndexBy(e);
-            this.todos.splice(index, 1)
+            this.todos.splice(index, 1);
+            console.log('aaa');
+            console.log(e);
+            console.log(e.id);
+            const Ref = collection(db, "todos");
+            deleteDoc(doc(Ref, e.id));
+            console.log('bbb');
         },
         toggleIsDone(e){
-            const index = this.getIndexBy(e);
-            console.log('aaa');
+            // const index = this.getIndexBy(e);
             console.log(e.isDone);
             e.isDone = !e.isDone;
+            const Ref = collection(db, "todos");
+            console.log(e.id);
+            console.log(e.isDone);
+            updateDoc(doc(Ref, e.id), {
+                isDone: e.isDone
+            });
+            console.log(e.isDone);
         },
         getIndexBy(id){
             const filteredTodo = this.todos.filter(todo => todo.id ===id)[0];
             const index = this.todos.indexOf(filteredTodo);
             return index;
         },
-        getData: function () {
-            if (firebase.apps.length === 0) {
-                firebase.initializeApp();
-            }
-                const  db = firebase.firestore();
-                // データ取得
-                db.collection('todos').get(
-                ).then((querySnapshot) => {
-                    querySnapshot.forEach((doc) => {
-                        // テーブル表示
-                        this.todos = [doc.data()];
-                    });
-                }).catch((error) => {
-                    console.log(error);
-                    // テーブルリセット
-                    this.items = [];
+        getData() {
+                onSnapshot(collection(db, 'todos'), (querySnapshot) => {
+                const fbTodos = [];
+                querySnapshot.forEach((doc) => {
+                    const todo = {
+                    id: doc.id,
+                    isDone: doc.data().isDone,
+                    text: doc.data().text,
+                    };
+                    fbTodos.push(todo);
                 });
-        },
-        postData: function () {
-            console.log('db接続前');
-            console.log(this.todos[0]);
-            console.log(this.todos[0].id);
-            console.log(this.todos[0].text);
-            console.log(this.todos[0].isDone);
-            const isDoneString = toString(this.todos[0].isDone)
-            axios.post(
-                // https://firestore.googleapis.com/v1/projects/YOUR_PROJECT_ID/databases/(default)/documents/cities/LA
-                // 'https://firestore.googleapis.com/v1/projects/test-28015/databases/(default)/documents/todos/tcppIyoMuilKrG1niPm7',
-                'https://firestore.googleapis.com/v1/projects/test-28015/databases/(default)/documents/todos',
-
-                
-                { 
-                    fields: {
-                        id: {
-                            stringValue: this.todos[0].id//stringValueは絶対
-                        },
-                        isDone:{// booleanValueでOK
-                            booleanValue: this.todos[0].isDone
-                        },
-                        text:{
-                            stringValue: this.todos[0].text
-                        }
-                        
-                    }
-                }
-                
-            )
-            .then((response) => {
-                console.log(response);
-            })
-            .catch((error) => {
-                console.log(error.message);
+                console.log('即時のため来る');
+                this.todos = fbTodos;
             });
-        }
-        
-
+        },
     },
-
     computed: {
         doneTodo(){
             return this.todos.filter( todo => todo.isDone === true);
@@ -185,13 +198,10 @@
         incompleteTodo(){
             return this.todos.filter( todo => todo.isDone === false);
         }
-
-    }
+    },
+    
  }
 </script>
-
-
-
 
 <style lang="scss" scoped>
 
