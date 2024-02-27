@@ -12,7 +12,6 @@
                     @click="addTodo"
                     >ADD TODO</button>
                 </section>
-
                 <section class="list-area">
                     <div class="area-complete_incomplete">
                         <p class="todo-title">今のリスト</p>
@@ -62,9 +61,7 @@
                 </section>
                 <section class="db-action">
                     <div>
-                        <button class="bottom-area button-show"
-                                @click="getData()"
-                                >表示</button>
+                        <div v-if="this.todos == ''" class="bottom-area button-show"> 何もありません </div>
                     </div>
                 </section>
             </article>
@@ -74,52 +71,26 @@
 
 <script>
    import { db } from '../../firebase/firebase'
-   import { onMounted, ref, reactive,inject, watch } from 'vue'
-   import { collection, getDocs, onSnapshot, deleteDoc,addDoc, query, orderBy, doc, updateDoc } from "firebase/firestore";
+   import { collection, onSnapshot, deleteDoc,addDoc, query, orderBy, doc, updateDoc } from "firebase/firestore";
    
-   const todos = ref();
-   const todosQuery = query(collection(db, 'todos'), orderBy('date', 'desc'));
-//    onMounted(() => {
-//             onSnapshot(todosQuery, (querySnapshot) => {
-//                 const fbTodos = [];
-//                 querySnapshot.forEach((doc) => {
-//                     const todo = {
-//                     id: doc.id,
-//                     isDone: doc.data().isDone,
-//                     text: doc.data().text,
-//                     };
-//                     fbTodos.push(todo);
-//                 });
-//                 console.log('即時のため来る');
-//                 todos.value = fbTodos;
-//             });
-//    });
-
-
-
-
-
     export default {
     data(){
-        // const todos = [];
-        // const todosQuery = query(collection(db, 'todos'), orderBy('date', 'desc'));
-        // onSnapshot(todosQuery, (querySnapshot) => {
-        //         const fbTodos = [];
-        //         querySnapshot.forEach((doc) => {
-        //             const todo = {
-        //             id: doc.id,
-        //             isDone: doc.data().isDone,
-        //             text: doc.data().text,
-        //             };
-        //             fbTodos.push(todo);
-        //         });
-        //         console.log(fbTodos);
-        //         console.log('即時のため来る');
-        //         this.todos = fbTodos;
-        //         console.log(this.todos);
-        //     });
+        const todos = [];
+        const todosQuery = query(collection(db, 'todos'), orderBy('id', 'desc'));//持ってるカラムで
+                onSnapshot(todosQuery, (querySnapshot) => {
+                const fbTodos = [];
+                querySnapshot.forEach((doc) => {
+                    const todo = {
+                    id: doc.id,
+                    isDone: doc.data().isDone,
+                    text: doc.data().text,
+                    };
+                    fbTodos.push(todo);
+                });
+                this.todos = fbTodos;
+            });
         return {
-            todos: [],
+            todos,
             text: ''
         }
     },
@@ -143,7 +114,6 @@
         });
             this.todos.push(todo)
             this.resetText();
-
         },
         resetText(){
             this.text = '';
@@ -151,20 +121,13 @@
         deleteTodo(e){
             const index = this.getIndexBy(e);
             this.todos.splice(index, 1);
-            console.log('aaa');
-            console.log(e);
-            console.log(e.id);
             const Ref = collection(db, "todos");
             deleteDoc(doc(Ref, e.id));
-            console.log('bbb');
         },
         toggleIsDone(e){
-            // const index = this.getIndexBy(e);
             console.log(e.isDone);
             e.isDone = !e.isDone;
             const Ref = collection(db, "todos");
-            console.log(e.id);
-            console.log(e.isDone);
             updateDoc(doc(Ref, e.id), {
                 isDone: e.isDone
             });
@@ -186,7 +149,6 @@
                     };
                     fbTodos.push(todo);
                 });
-                console.log('即時のため来る');
                 this.todos = fbTodos;
             });
         },
@@ -199,7 +161,6 @@
             return this.todos.filter( todo => todo.isDone === false);
         }
     },
-    
  }
 </script>
 
