@@ -60,7 +60,7 @@
                         </ul>
                     </div>
                 </section>
-                <section class="db-action">
+                <!-- <section class="db-action">
                     <div>
                         <button class="bottom-area button-show"
                                 @click="getData"
@@ -69,7 +69,7 @@
                                 @click="postData()"
                                 >登録</button>
                     </div>
-                </section>
+                </section> -->
             </article>
         </div>
     </body>
